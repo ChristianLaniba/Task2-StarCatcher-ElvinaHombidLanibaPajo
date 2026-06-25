@@ -44,7 +44,7 @@ function preload() {
 }
 
 function create() {
-    // Initialize all variables as scene properties
+    //score
     this.score = 0;
     this.gameOver = false;
     this.lastScaleMilestone = 0;
@@ -52,7 +52,7 @@ function create() {
 
     this.add.image(400, 300, "bg").setDisplaySize(800, 600);
 
-    // Create ground
+    //Platform
     this.ground = this.physics.add.staticGroup();
     const base = this.ground.create(400, 580, "mainGround");
     base.setScale(800 / base.width, 100 / base.height);
@@ -60,7 +60,7 @@ function create() {
     base.body.setSize(base.displayWidth, 30);
     base.body.setOffset(0, base.displayHeight - 80);
 
-    // Create platforms
+    //create platforms
     this.platforms = this.physics.add.staticGroup();
     
     const platformPositions = [
@@ -82,7 +82,7 @@ function create() {
         p.body.setOffset(0, p.displayHeight - 20);
     });
 
-    // Create player
+    //Player - has a physics body, so gravity pulls it down
     this.player = this.physics.add.sprite(100, 400, "player");
     this.player.setScale(0.1);
     this.player.setBounce(0.1);
@@ -90,14 +90,14 @@ function create() {
     this.player.setSize(180, 425);
     this.player.setOffset(180, 180);
 
-    // Add collisions
+    //collider - stops the player falling through the platform
     this.physics.add.collider(this.player, this.ground);
     this.physics.add.collider(this.player, this.platforms);
 
-    // Controls
+    //controls
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    // Animations
+    //animations
     this.anims.create({
         key: "idle",
         frames: [{ key: "player", frame: 0 }],
@@ -123,17 +123,15 @@ function create() {
 
     this.player.play("idle");
 
-    // Create stars group
     this.stars = this.physics.add.group();
 
-    // Define methods as arrow functions to preserve 'this' context
     this.collectStar = (player, star) => {
         star.destroy();
         this.score++;
         this.scoreText.setText("Stars Collected: " + this.score);
         
-        // Log to console for verification
-        console.log("Star collected! Total stars: " + this.score);
+        //open F12 to see this
+        console.log("Score: ", this.score);
 
         player.setTint(colors[this.colorIndex]);
         this.colorIndex = (this.colorIndex + 1) % colors.length;
@@ -143,7 +141,7 @@ function create() {
             player.setScale(player.scaleX * 1.1);
         }
 
-        // Spawn new star
+        //spawn new star
         const x = Phaser.Math.Between(50, 750);
         const newStar = this.stars.create(x, 0, "star");
         newStar.setScale(0.5);
@@ -151,11 +149,11 @@ function create() {
         newStar.setBounce(0);
         newStar.setCollideWorldBounds(true);
 
-        // Spawn bomb
+        //spawn bomb
         const bombX = player.x < 400 ? Phaser.Math.Between(420, 780) : Phaser.Math.Between(20, 380);
         const bomb = this.bombs.create(bombX, 0, "bomb");
         bomb.body.setOffset(0, 70);
-        bomb.setScale(0.5);
+        bomb.setScale(0.3);
         bomb.setCircle(bomb.displayWidth / 2);
         bomb.setBounce(1);
         bomb.setCollideWorldBounds(true);
@@ -178,7 +176,7 @@ function create() {
         console.log("Game Over! Final score: " + this.score);
     };
 
-    // Spawn initial stars
+    //spawn initial stars
     for (let i = 0; i < 1; i++) {
         const x = Phaser.Math.Between(50, 750);
         const star = this.stars.create(x, 0, "star");
@@ -188,7 +186,7 @@ function create() {
         star.setCollideWorldBounds(true);
     }
 
-    // Spawn stars on upper platforms (stretch goal)
+    //Stretch goal: second platform at different height with extra stars
     const upperStar2 = this.stars.create(250, 150, "star");
     upperStar2.setScale(0.5);
     upperStar2.setCircle(upperStar2.width / 2);
