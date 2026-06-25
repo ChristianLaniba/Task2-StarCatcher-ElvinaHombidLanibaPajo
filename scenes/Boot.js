@@ -4,7 +4,6 @@ export default class Boot extends Phaser.Scene {
     }
 
     preload() {
-        // Load all assets needed for the game
         this.load.image("bg", "assets/bg.png");
         this.load.image("mainGround", "assets/tiles/ground.png");
         this.load.image("platform", "assets/tiles/platform.png");
@@ -18,7 +17,6 @@ export default class Boot extends Phaser.Scene {
     }
 
     create() {
-        // Start the Game scene after loading is complete
         this.scene.start('Game');
     }
 }

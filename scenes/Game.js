@@ -15,14 +15,13 @@ export default class Game extends Phaser.Scene {
     }
 
     preload() {
-        // All loading is handled in Boot.js
     }
 
     create() {
-        // Background
+        //background
         this.add.image(400, 300, "bg").setDisplaySize(800, 600);
 
-        // Ground - static platform at bottom
+        //ground platform
         this.ground = this.physics.add.staticGroup();
         const base = this.ground.create(400, 580, "mainGround");
         base.setScale(800 / base.width, 100 / base.height);
@@ -30,7 +29,7 @@ export default class Game extends Phaser.Scene {
         base.body.setSize(base.displayWidth, 30);
         base.body.setOffset(0, base.displayHeight - 80);
 
-        // Platforms
+        //platforms
         this.platforms = this.physics.add.staticGroup();
         
         const platformPositions = [
@@ -52,7 +51,7 @@ export default class Game extends Phaser.Scene {
             p.body.setOffset(0, p.displayHeight - 20);
         });
 
-        // Player
+        //player setup
         this.player = this.physics.add.sprite(100, 400, "player");
         this.player.setScale(0.1);
         this.player.setBounce(0.1);
@@ -60,14 +59,14 @@ export default class Game extends Phaser.Scene {
         this.player.setSize(180, 425);
         this.player.setOffset(180, 180);
 
-        // Colliders
+        //colliders
         this.physics.add.collider(this.player, this.ground);
         this.physics.add.collider(this.player, this.platforms);
 
-        // Controls
+        //controls
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Animations
+        //animations
         this.anims.create({
             key: "idle",
             frames: [{ key: "player", frame: 0 }],
@@ -93,10 +92,10 @@ export default class Game extends Phaser.Scene {
 
         this.player.play("idle");
 
-        // Stars group
+        //stars group
         this.stars = this.physics.add.group();
 
-        // Star collection method
+        //collect star method
         this.collectStar = (player, star) => {
             star.destroy();
             
@@ -150,7 +149,7 @@ export default class Game extends Phaser.Scene {
             bomb.setVelocity(Phaser.Math.Between(-220, 220), 20);
         };
 
-        // Bomb hit method
+        //bomb hit method
         this.hitBomb = (player, bomb) => {
             bomb.destroy();
             const uiScene = this.scene.get('UI');
@@ -159,7 +158,7 @@ export default class Game extends Phaser.Scene {
             }
         };
 
-        // Helper function to create stars
+        //helper to create stars
         const createStar = (x, y) => {
             const star = this.stars.create(x, y || 0, "star");
             star.setScale(0.5);
@@ -169,25 +168,25 @@ export default class Game extends Phaser.Scene {
             return star;
         };
 
-        // Initial stars (3 total)
+        //initial stars
         createStar(Phaser.Math.Between(50, 750), 0);
         createStar(250, 150);
         createStar(650, 120);
 
-        // Star collisions and overlap
+        //star collisions and overlap
         this.physics.add.collider(this.stars, this.ground);
         this.physics.add.collider(this.stars, this.platforms);
         this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this);
 
-        // Bombs group
+        //bombs group
         this.bombs = this.physics.add.group();
 
-        // Bomb collisions
+        //bomb collisions
         this.physics.add.collider(this.bombs, this.ground);
         this.physics.add.collider(this.bombs, this.platforms);
         this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
 
-        // Launch UI on top
+        //launch UI
         this.scene.launch('UI');
     }
 
@@ -197,6 +196,7 @@ export default class Game extends Phaser.Scene {
         let speed = 250;
         let moving = false;
 
+        //movement
         if (this.cursors.left.isDown) {
             this.player.setVelocityX(-speed);
             this.player.setFlipX(true);
@@ -211,10 +211,12 @@ export default class Game extends Phaser.Scene {
             this.player.setVelocityX(0);
         }
 
+        //jump
         if (this.cursors.up.isDown && this.player.body.blocked.down) {
             this.player.setVelocityY(-520);
         }
 
+        //animation
         if (!this.player.body.blocked.down) {
             this.player.play("jump", true);
         }
