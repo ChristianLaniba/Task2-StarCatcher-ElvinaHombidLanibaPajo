@@ -1,4 +1,3 @@
-//Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'Game' });
@@ -7,7 +6,7 @@ class GameScene extends Phaser.Scene {
         this.lastScaleMilestone = 0;
         this.colorIndex = 0;
         this.maxStars = 10;
-        this.starsCollected = false;
+        this.reachedMax = false;
     }
 
     preload() {
@@ -106,31 +105,50 @@ class GameScene extends Phaser.Scene {
         this.stars = this.physics.add.group();
 
         this.collectStar = (player, star) => {
+            //destroy the star we collected
             star.destroy();
             
-            //only count up to max
+            //increment score if not at max
             if (this.score < this.maxStars) {
                 this.score++;
                 console.log("Score: ", this.score);
             }
 
-            //if score reaches max, despawn all remaining stars
-            if (this.score >= this.maxStars) {
+            //check if we reached max
+            if (this.score >= this.maxStars && !this.reachedMax) {
+                this.reachedMax = true;
                 this.score = this.maxStars;
-                this.stars.getChildren().forEach(s => s.destroy());
+                
+                //despawn ALL remaining stars
+                const remainingStars = this.stars.getChildren();
+                console.log("Remaining stars to despawn: " + remainingStars.length);
+                
+                //store in array to avoid modification issues
+                const starsToDestroy = [...remainingStars];
+                starsToDestroy.forEach(s => {
+                    s.destroy();
+                });
+                
                 console.log("All stars collected! Score: " + this.score);
-                return; //stop here, don't spawn anything else
+                return;
             }
 
+            //don't spawn anything if we already reached max
+            if (this.reachedMax) {
+                return;
+            }
+
+            //player tint
             player.setTint(colors[this.colorIndex]);
             this.colorIndex = (this.colorIndex + 1) % colors.length;
 
+            //scale up
             if (Math.floor(this.score / 5) > this.lastScaleMilestone) {
                 this.lastScaleMilestone++;
                 player.setScale(player.scaleX * 1.1);
             }
 
-            //spawn new star and bomb
+            //spawn new star
             const x = Phaser.Math.Between(50, 750);
             const newStar = this.stars.create(x, 0, "star");
             newStar.setScale(0.5);
@@ -157,24 +175,20 @@ class GameScene extends Phaser.Scene {
             }
         };
 
-        //initial stars
-        for (let i = 0; i < 1; i++) {
-            const x = Phaser.Math.Between(50, 750);
-            const star = this.stars.create(x, 0, "star");
+        //create all stars in a function
+        const createStar = (x, y) => {
+            const star = this.stars.create(x, y || 0, "star");
             star.setScale(0.5);
             star.setCircle(star.width / 2);
             star.setBounce(0);
             star.setCollideWorldBounds(true);
-        }
+            return star;
+        };
 
-        //extra stars on upper platforms
-        const upperStar2 = this.stars.create(250, 150, "star");
-        upperStar2.setScale(0.5);
-        upperStar2.setCircle(upperStar2.width / 2);
-        
-        const upperStar3 = this.stars.create(650, 120, "star");
-        upperStar3.setScale(0.5);
-        upperStar3.setCircle(upperStar3.width / 2);
+        //initial stars (3 stars total)
+        createStar(Phaser.Math.Between(50, 750), 0);
+        createStar(250, 150);
+        createStar(650, 120);
 
         //star collisions
         this.physics.add.collider(this.stars, this.ground);
